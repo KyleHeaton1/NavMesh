@@ -10,6 +10,8 @@ public class AIStateManager : MonoBehaviour
     AIBaseState currentState;
     public AIIdleState IdleState = new AIIdleState();
     public AIChaseState ChaseState = new AIChaseState();
+    public AITurnState TurnState = new AITurnState();
+    public AIWalkState WalkState = new AIWalkState();
 
     public float x,y,z;
     public Vector3 pos;
@@ -19,13 +21,16 @@ public class AIStateManager : MonoBehaviour
 
     public Quaternion lookRotation;
 
-    public float nextStateTimer, baseSpeed = 10;
+    public bool agroActive = false;
+    bool canSwitch;
+
+    public float nextStateTimer, baseTime = 10;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-
+        nextStateTimer = baseTime;
         currentState = IdleState;
         currentState.EnterState(this);
     }
@@ -34,6 +39,17 @@ public class AIStateManager : MonoBehaviour
     void Update()
     {
         currentState.UpdateState(this);
+
+        if(!agroActive)
+        {
+            nextStateTimer -= Time.deltaTime;
+            if(nextStateTimer < 0)
+            {
+                canSwitch = true;
+                nextStateTimer = baseTime;
+                SwitchToNextStateInQueue();
+            }
+        }
     }
 
     void OnCollisionEnter(Collision collsion)
@@ -47,6 +63,28 @@ public class AIStateManager : MonoBehaviour
         state.EnterState(this);
     }
 
-    
+    void SwitchToNextStateInQueue()
+    {
+        if(currentState == IdleState )
+        {
+            SwitchState(TurnState);
+            Debug.Log("Idle");
+        }
+        if(currentState == TurnState)
+        {
+            SwitchState(WalkState);
+            Debug.Log("Turn");
+        }
+        if(currentState == WalkState)
+        {
+            SwitchState(IdleState);
+            Debug.Log("Walk");
+        }
+        if(agroActive)
+        {
+            SwitchState(ChaseState);
+            Debug.Log("Chase");
+        }
+    }
 }
 
