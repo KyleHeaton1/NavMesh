@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class AIStateManager : MonoBehaviour
 {
 
-    public Rigidbody rb;
+
     AIBaseState currentState;
     public AIIdleState IdleState = new AIIdleState();
     public AIChaseState ChaseState = new AIChaseState();
@@ -29,7 +29,7 @@ public class AIStateManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+
         nextStateTimer = baseTime;
         currentState = IdleState;
         currentState.EnterState(this);
@@ -40,16 +40,23 @@ public class AIStateManager : MonoBehaviour
     {
         currentState.UpdateState(this);
 
-        if(!agroActive)
+
+        nextStateTimer -= Time.deltaTime;
+        if(agroActive)
         {
-            nextStateTimer -= Time.deltaTime;
+            CheckForAgroState();
+        }
+        else
+        {
             if(nextStateTimer < 0)
             {
                 canSwitch = true;
                 nextStateTimer = baseTime;
-                SwitchToNextStateInQueue();
+                NextStateInQueue();
             }
         }
+
+        
     }
 
     void OnCollisionEnter(Collision collsion)
@@ -63,28 +70,32 @@ public class AIStateManager : MonoBehaviour
         state.EnterState(this);
     }
 
-    void SwitchToNextStateInQueue()
+    void NextStateInQueue()
     {
-        if(currentState == IdleState )
+        if(currentState == IdleState && canSwitch)
         {
             SwitchState(TurnState);
-            Debug.Log("Idle");
-        }
-        if(currentState == TurnState)
-        {
-            SwitchState(WalkState);
+            canSwitch = false;
             Debug.Log("Turn");
         }
-        if(currentState == WalkState)
+        if(currentState == TurnState && canSwitch)
         {
-            SwitchState(IdleState);
+            SwitchState(WalkState);
+            canSwitch = false;
             Debug.Log("Walk");
         }
-        if(agroActive)
+        if(currentState == WalkState && canSwitch)
         {
-            SwitchState(ChaseState);
-            Debug.Log("Chase");
+            SwitchState(IdleState);
+            canSwitch = false;
+            Debug.Log("Idle");
         }
+
+    }
+    void CheckForAgroState()
+    {
+        SwitchState(ChaseState);
+        Debug.Log("Chase");
     }
 }
 
