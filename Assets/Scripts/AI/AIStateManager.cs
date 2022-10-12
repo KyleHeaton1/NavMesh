@@ -32,6 +32,7 @@ public class AIStateManager : MonoBehaviour
     public bool agroActive = false;
     bool canSwitch;
 
+    public Animator anim;
 
     public float nextStateTimer, baseTime = 2;
 
@@ -94,12 +95,14 @@ public class AIStateManager : MonoBehaviour
             SwitchState(WalkState);
             canSwitch = false;
             Debug.Log("Walk");
+
         }
         if(currentState == WalkState && canSwitch)
         {
             SwitchState(IdleState);
             canSwitch = false;
             Debug.Log("Idle");
+
         }
 
     }
