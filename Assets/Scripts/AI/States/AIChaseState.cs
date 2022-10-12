@@ -9,7 +9,7 @@ public class AIChaseState : AIBaseState
     
     public override void UpdateState(AIStateManager enemy)
     {
-        enemy.agent.SetDestination(enemy.player.transform.position);
+        enemy.agent.SetDestination(enemy.newTarget.position);
     }
 
     public override void OnCollisionEnter(AIStateManager enemy, Collision collsion)

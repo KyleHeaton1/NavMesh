@@ -10,21 +10,30 @@ public class AIStateManager : MonoBehaviour
     AIBaseState currentState;
     public AIIdleState IdleState = new AIIdleState();
     public AIChaseState ChaseState = new AIChaseState();
-    public AITurnState TurnState = new AITurnState();
     public AIWalkState WalkState = new AIWalkState();
+    public AIFleeState FleeState = new AIFleeState();
+    public AIAttackState AttackState = new AIAttackState();
+    public AIFOV fov;
+
+    public Transform newTarget;
 
     public float x,y,z;
-    public Vector3 pos;
+    //public Vector3 pos;
 
     public NavMeshAgent agent;
     public GameObject player;
+
+    public GameObject[] positions;
+    public GameObject currentPosition;
+    public int index;
 
     public Quaternion lookRotation;
 
     public bool agroActive = false;
     bool canSwitch;
 
-    public float nextStateTimer, baseTime = 10;
+
+    public float nextStateTimer, baseTime = 2;
 
     // Start is called before the first frame update
     void Start()
@@ -56,6 +65,13 @@ public class AIStateManager : MonoBehaviour
             }
         }
 
+            foreach (Transform visibleTarget in fov.visibleTargets)
+            {
+                newTarget = visibleTarget;
+                Debug.Log("Target Found: ", visibleTarget.Find(name));
+                agroActive = true;
+            }
+
         
     }
 
@@ -72,13 +88,8 @@ public class AIStateManager : MonoBehaviour
 
     void NextStateInQueue()
     {
+
         if(currentState == IdleState && canSwitch)
-        {
-            SwitchState(TurnState);
-            canSwitch = false;
-            Debug.Log("Turn");
-        }
-        if(currentState == TurnState && canSwitch)
         {
             SwitchState(WalkState);
             canSwitch = false;
